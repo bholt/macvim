@@ -190,6 +190,11 @@
 #ifdef FEAT_ARABIC
 # define PV_ARAB	OPT_WIN(WV_ARAB)
 #endif
+#ifdef FEAT_LINEBREAK
+# define PV_BRI		OPT_WIN(WV_BRI)
+# define PV_BRIMIN	OPT_WIN(WV_BRIMIN)
+# define PV_BRISHIFT	OPT_WIN(WV_BRISHIFT)
+#endif
 #ifdef FEAT_DIFF
 # define PV_DIFF	OPT_WIN(WV_DIFF)
 #endif
@@ -655,6 +660,34 @@ static struct vimoption
 			    {(char_u *)0L, (char_u *)0L}
 #endif
 			    SCRIPTID_INIT},
+    {"breakindent",   "bri",  P_BOOL|P_VI_DEF|P_VIM|P_RWIN,
+#ifdef FEAT_LINEBREAK
+			    (char_u *)VAR_WIN, PV_BRI,
+			    {(char_u *)FALSE, (char_u *)0L}
+#else
+			    (char_u *)NULL, PV_NONE,
+			    {(char_u *)0L, (char_u *)0L}
+#endif
+			    SCRIPTID_INIT},
+    {"breakindentmin", "brimin", P_NUM|P_VI_DEF|P_VIM|P_RWIN,
+#ifdef FEAT_LINEBREAK
+			    (char_u *)VAR_WIN, PV_BRIMIN,
+			    {(char_u *)20L, (char_u *)20L}
+#else
+			    (char_u *)NULL, PV_NONE,
+			    {(char_u *)0L, (char_u *)0L}
+#endif
+			    SCRIPTID_INIT},
+    {"breakindentshift", "brishift", P_NUM|P_VI_DEF|P_VIM|P_RWIN,
+#ifdef FEAT_LINEBREAK
+			    (char_u *)VAR_WIN, PV_BRISHIFT,
+			    {(char_u *)0L, (char_u *)0L}
+#else
+			    (char_u *)NULL, PV_NONE,
+			    {(char_u *)0L, (char_u *)0L}
+#endif
+			    SCRIPTID_INIT},
+
     {"browsedir",   "bsdir",P_STRING|P_VI_DEF,
 #ifdef FEAT_BROWSE
 			    (char_u *)&p_bsdir, PV_NONE,
@@ -8537,6 +8570,16 @@ set_num_option(opt_idx, varp, value, errbuf, errbuflen, opt_flags)
 	}
 	curwin->w_nrwidth_line_count = 0;
     }
+
+    /* 'breakindentmin' must be positive */
+    else if (pp == &curwin->w_p_brimin)
+    {
+	if (curwin->w_p_brimin < 1)
+	{
+	    errmsg = e_positive;
+	    curwin->w_p_brimin = 1;
+	}
+    }
 #endif
 
 #if defined(FEAT_TRANSPARENCY)
@@ -9788,6 +9831,9 @@ get_varp(p)
 	case PV_WRAP:	return (char_u *)&(curwin->w_p_wrap);
 #ifdef FEAT_LINEBREAK
 	case PV_LBR:	return (char_u *)&(curwin->w_p_lbr);
+	case PV_BRI:	return (char_u *)&(curwin->w_p_bri);
+	case PV_BRIMIN:	return (char_u *)&(curwin->w_p_brimin);
+	case PV_BRISHIFT: return (char_u *)&(curwin->w_p_brishift);
 #endif
 #ifdef FEAT_SCROLLBIND
 	case PV_SCBIND: return (char_u *)&(curwin->w_p_scb);
@@ -9977,6 +10023,8 @@ copy_winopt(from, to)
     to->wo_wrap = from->wo_wrap;
 #ifdef FEAT_LINEBREAK
     to->wo_lbr = from->wo_lbr;
+    to->wo_bri = from->wo_bri;
+    to->wo_brimin = from->wo_brimin;
 #endif
 #ifdef FEAT_SCROLLBIND
     to->wo_scb = from->wo_scb;
