@@ -1130,7 +1130,7 @@
         [[window animator] setAlphaValue:0];
     } completionHandler:^{
         [window setStyleMask:([window styleMask] | NSFullScreenWindowMask)];
-        [[vimView tabBarControl] setStyleNamed:@"Unified"];
+        [[vimView tabBarControl] setStyleNamed:@"Metal"];
         [self updateTablineSeparator];
         [self maximizeWindow:fullScreenOptions];
 
@@ -1240,7 +1240,7 @@
     fullScreenEnabled = YES;
     [window setAlphaValue:1];
     [window setStyleMask:([window styleMask] | NSFullScreenWindowMask)];
-    [[vimView tabBarControl] setStyleNamed:@"Unified"];
+    [[vimView tabBarControl] setStyleNamed:@"Metal"];
     [self updateTablineSeparator];
     [self maximizeWindow:fullScreenOptions];
 }
